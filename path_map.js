@@ -118,7 +118,7 @@ let page_names_obj = {};
 
 
 
-let path_map_v3 = [
+    let path_map_v3 = [
     [{
         'field_1': 'value_1'
     }, "page_1", "page_2", "jump_1", "page_3", "page_4"],
