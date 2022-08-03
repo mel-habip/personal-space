@@ -11,7 +11,6 @@ Object.prototype.length = function () {
     return Object.values(this).length;
 };
 
-
 Object.prototype.filter = function (callback_function) {
     Object.keys(this).forEach((value) => {
         if (callback_function === Boolean) {
@@ -22,6 +21,15 @@ Object.prototype.filter = function (callback_function) {
         } else if (!callback_function(this[value])) delete this[value];
     });
     return this;
+};
+
+
+Object.prototype.first_value = function () {
+    return Object.values(this)[0] ?? false;
+};
+
+Object.prototype.first_key = function () {
+    return Object.keys(this)[0] ?? false;
 };
 
 
@@ -48,13 +56,13 @@ let big_object = {
     value_11: null
 };
 
-// console.log((big_object.filter(Boolean)));
+console.log((big_object.first_key()));
 
 
 
 console.log((big_object.filter(x => x>-5 && typeof x === 'number')));
 console.log((big_object.filter(x => x > -5 && x)));
-console.log((big_object.filter(x => x > -1)));
+console.log((big_object.filter(x => x > -5)));
 
 
 console.log(object_falsy_filter(big_object));
@@ -82,5 +90,3 @@ console.log(some_obj.length())
 
 console.log(Object.values(some_arr))
 
-
-console.log(Boolean(null))
