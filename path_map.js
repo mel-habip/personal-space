@@ -1,120 +1,9 @@
-const example_schema = [{
-        "id": "page_1",
-        "type": "page",
-        "title": "example_title",
-        "subtitle": "example_subtitle",
-        "fields": [],
-        "next": "page_2"
-    },
-    {
-        "id": "page_2",
-        "type": "page",
-        "title": "example_title",
-        "subtitle": "example_subtitle",
-        "fields": [],
-        "next": "jump_1"
-    },
-    {
-        "id": "jump_1",
-        "type": "jump",
-        "branches": [{
-                "next": "page_3",
-                "condition": {
-                    "field_1": "value_1"
-                }
-            },
-            {
-                "next": "jump_2",
-                "condition": {
-                    "field_2": "value_2"
-                }
-            },
-            {
-                "next": "page_4"
-            }
-        ]
-    },
-    {
-        "id": "page_3",
-        "type": "page",
-        "title": "example_title",
-        "subtitle": "example_subtitle",
-        "fields": [],
-        "next": "page_4"
-    },
-    {
-        "id": "page_4",
-        "type": "page",
-        "title": "example_title",
-        "subtitle": "example_subtitle",
-        "fields": [],
-        "submit": true
-    },
-    {
-        "id": "jump_2",
-        "type": "jump",
-        "branches": [{
-                "next": "page_3",
-                "condition": {
-                    "field_3": "value_3"
-                }
-            },
-            {
-                "next": "page_6"
-            }
-        ]
-    },
-    {
-        "id": "page_6",
-        "type": "page",
-        "title": "example_title",
-        "subtitle": "example_subtitle",
-        "fields": [],
-        "next": "page_7"
-    },
-    {
-        "id": "page_7",
-        "type": "page",
-        "title": "example_title",
-        "subtitle": "example_subtitle",
-        "fields": [],
-        "next": "jump_3"
-    },
-    {
-        "id": "jump_3",
-        "type": "jump",
-        "branches": [{
-                "next": "page_8",
-                "condition": {
-                    "field_4": "value_4"
-                }
-            },
-            {
-                "next": "page_9"
-            }
-        ]
-    },
-    {
-        "id": "page_8",
-        "type": "page",
-        "title": "example_title",
-        "subtitle": "example_subtitle",
-        "fields": [],
-        "submit": true
-    },
-    {
-        "id": "page_9",
-        "type": "page",
-        "title": "example_title",
-        "subtitle": "example_subtitle",
-        "fields": [],
-        "submit": true
-    }
-];
+const file = process.argv.slice(2).join(' ');
+const schema = require(file);
 
-const RESERVED = Symbol('RESERVED');
+// const RESERVED = Symbol('RESERVED');
 
-// console.log(RESERVED === RESERVED);
+// console.log(RESERVED === RESERVED);  //might use this later for equality testing
 
 Object.prototype.first_value = function (self = this) {
     return Object.values(self)[0] ?? false;
@@ -128,6 +17,20 @@ Object.prototype.length = function () {
     return Object.values(this).length;
 };
 
+Array.prototype.insert = function (index, value) {
+    // if (index > this.length) {
+    //     console.warn(`insertion to non-existent length ${index} of "${value}" for an array of length ${this.length}`);
+    // }
+    this.splice(index, 0, value);
+    return this;
+}
+
+/**
+ * Rule by which to prepare the client-facing sidebar name
+ */
+function title_templater(page) {
+    return page.subtitle || page.title || 'unknown';
+};
 
 /** Steps
  * 1) start from the first element
@@ -135,12 +38,6 @@ Object.prototype.length = function () {
  * 3) When you come across a jump, create an object for each branch and keep going under each branch. Once you finish the branches, add all the branches as separate paths to the main array.
  * 4) At any point, when you see "submit: true", do break;
  */
-
-var DONE = false;
-const result = [];
-
-console.log(map_constructor(example_schema));
-
 function map_constructor(schema) {
     let RESULT = [
         []
@@ -150,9 +47,9 @@ function map_constructor(schema) {
     if (schema[0].submit === true) {
         console.warn('This schema has only a single page.');
         submit = true;
-        RESULT[0].push([schema[0].id, {}]);
+        RESULT[0].push([schema[0].id, {}, title_templater(schema[0])]);
     } else if (schema[0].type === 'page') {
-        RESULT[0].push([schema[0].id, {}]);
+        RESULT[0].push([schema[0].id, {}, title_templater(schema[0])]);
         last_position = schema[0].id;
         last_next = schema[0].next;
     } else if (schema[0].type === 'jump') {
@@ -168,7 +65,7 @@ function map_constructor(schema) {
             submit = true;
             RESULT.forEach((el, ind) => {
                 RESULT[ind] = RESULT[ind].concat([
-                    [page.id, {}]
+                    [page.id, {}, title_templater(page)]
                 ]);
             });
             break;
@@ -176,7 +73,7 @@ function map_constructor(schema) {
             last_next = page.next;
             RESULT.forEach((el, ind) => {
                 RESULT[ind] = RESULT[ind].concat([
-                    [page.id, {}]
+                    [page.id, {}, title_templater(page)]
                 ]);
 
             });
@@ -213,7 +110,7 @@ function individual_path_constructor(schema, page_id, condition = {}) {
             submit = true;
             RESULT.forEach((el, ind) => {
                 RESULT[ind] = RESULT[ind].concat([
-                    [page.id, condition_combiner(RESULT[0][index]?. [1] ?? {}, condition)]
+                    [page.id, condition_combiner(RESULT[0][index]?. [1] ?? {}, condition), title_templater(page)]
                 ]);
             });
             break;
@@ -221,7 +118,7 @@ function individual_path_constructor(schema, page_id, condition = {}) {
             last_next = page.next;
             RESULT.forEach((el, ind) => {
                 RESULT[ind] = RESULT[ind].concat([
-                    [page.id, condition_combiner(RESULT[0][index]?. [1] ?? {}, condition)]
+                    [page.id, condition_combiner(RESULT[0][index]?. [1] ?? {}, condition), title_templater(page)]
                 ]);
 
             });
@@ -292,10 +189,16 @@ function condition_combiner(condition_1, condition_2) {
         console.warn('These two conditions are identical');
         return condition_1;
     };
-    if (condition_1.$and && condition_2.$and) { //merge the $and conditions
+    if (condition_1.$and && condition_2.$and) { //merge the $and conditions (1 layer deep)
         let temp = condition_1;
         condition_2.$and.forEach(individual_condition_1 => {
-            if (!condition_1.$and.some(individual_condition_2 => deepEqual(individual_condition_1, individual_condition_2))) {
+            if (individual_condition_1.$and) {
+                individual_condition_1.$and.forEach(nested_individual_condition_1 => {
+                    if (!condition_1.$and.some(individual_condition => deepEqual(nested_individual_condition_1, individual_condition))) {
+                        temp.$and.push(nested_individual_condition_1);
+                    }
+                })
+            } else if (!condition_1.$and.some(individual_condition_2 => deepEqual(individual_condition_1, individual_condition_2))) {
                 temp.$and.push(individual_condition_1);
             }
         });
@@ -344,7 +247,9 @@ function page_finder(schema, page_to_find) {
         type: step_1[0].type,
         next: step_1[0].next,
         submit: step_1[0].submit,
-        branches: step_1[0].branches
+        branches: step_1[0].branches,
+        title: step_1[0].title,
+        subtitle: step_1[0].subtitle
     };
 }
 
@@ -361,3 +266,55 @@ function array_equal(arr1, arr2, same_order = true) {
 // let array_2 = ["a", "b", "c", "", "d"];
 
 // console.log(deepEqual(array_1, array_2));
+
+
+const final_result = map_constructor(schema);
+
+console.log(final_result);
+
+const filtered_results = [];
+
+final_result.forEach(path_1 => {
+    if (filtered_results.some(path_2 => deepEqual(path_1, path_2))) {
+        return;
+    };
+    filtered_results.push(path_1);
+});
+
+
+// console.log(final_result);
+
+console.log('length before filter: ', final_result.length);
+console.log('length after filter: ' ,filtered_results.length);
+
+const sidebar = [{
+        type: "sidebar_stepper",
+        options: []
+    },
+    {
+        type: "info_box",
+        value: "You can log back in at any time to complete your application. This form saves automatically."
+    }
+];
+
+
+filtered_results.forEach(path => {
+   path.forEach((page, index)=> {
+    if (!sidebar[0].options.some(sidebar_item => sidebar_item.to === page[0])) {
+        let position = 0;
+        let next_page = path[index+1] || [''];
+        for (let sidebar_item in sidebar[0].options) {
+            if (sidebar_item.to === next_page[0]) break;
+            position++;
+        };
+        let temp = {
+            name: page[2],
+            to: page[0]
+        };
+        sidebar[0].options.insert(position, temp);
+    };
+   }); 
+});
+
+
+// console.log(sidebar[0].options);
