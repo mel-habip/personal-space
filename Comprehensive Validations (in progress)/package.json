@@ -1,0 +1,25 @@
+{
+  "name": "mako_scripts",
+  "version": "1.0.0",
+  "description": "exported scripts and functions for other domains",
+  "main": "mongoTruthValidator.js",
+  "scripts": {
+    "test": "none"
+  },
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "Mako-Form-Schemas"
+  },
+  "keywords": [
+    "export",
+    "function",
+    "script",
+    "SE",
+    "schema",
+    "validation"
+  ],
+  "author": "Mel"
+}
