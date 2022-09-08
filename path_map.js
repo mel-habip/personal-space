@@ -1,17 +1,8 @@
 const file = process.argv.slice(2).join(' ');
-const schema = require(file);
+const schema = require(file).map(page => {return {id: page.id, type: page.type, title: page.title, next: page.next, branches: page.branches, submit: page.submit}});
 
-// const RESERVED = Symbol('RESERVED');
-
-// console.log(RESERVED === RESERVED);  //might use this later for equality testing
-
-Object.prototype.first_value = function (self = this) {
-    return Object.values(self)[0] ?? false;
-};
-
-Object.prototype.first_key = function (self = this) {
-    return Object.keys(self)[0] ?? false;
-};
+const PAGE_POSITION_MAP = {};
+let pages_mapped_flag = false;
 
 Object.prototype.length = function () {
     return Object.values(this).length;
@@ -235,86 +226,97 @@ function deepEqual(x, y) {
     ) : (x === y);
 };
 
+
+
 function page_finder(schema, page_to_find) {
-    let step_1 = schema.filter(page => page.id === page_to_find);
-    if (step_1.length === 0) {
-        throw Error(`Page with id ${page_to_find} could not be found!`);
-    } else if (step_1.length > 1) {
-        throw Error(`Page with id ${page_to_find} exists more than once in your schema!`);
-    };
-    return {
-        id: step_1[0].id,
-        type: step_1[0].type,
-        next: step_1[0].next,
-        submit: step_1[0].submit,
-        branches: step_1[0].branches,
-        title: step_1[0].title,
-        subtitle: step_1[0].subtitle
-    };
-}
 
-function array_equal(arr1, arr2, same_order = true) {
-    if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
-    if (same_order) {
-        return (arr1.length === arr2.length && arr1.every((el, ind) => el === arr2[ind]));
+    if (pages_mapped_flag) {
+
+        let our_page = schema?.[PAGE_POSITION_MAP?.[page_to_find]];
+        if (!our_page) throw Error(`Page with id ${page_to_find} could not be found!`);
+
+        let {id, type} = our_page;
+        if (type === 'jump') {
+            return {
+                id,
+                type,
+                branches : our_page.branches
+            }
+        };
+        let {
+            next,
+            submit,
+            title,
+            subtitle
+        } = our_page;
+
+        return {
+            id,
+            type,
+            next,
+            title,
+            subtitle
+        };
+    } else {
+        schema.forEach((page, index) => {
+            if (PAGE_POSITION_MAP[page.id]) throw Error(`Page with id ${page.id} exists more than once in your schema!`);
+            PAGE_POSITION_MAP[page.id] = index;
+        });
+        pages_mapped_flag=true;
     }
-    return (arr1.length === arr2.length && arr1.every(el => arr2.includes(el)) && arr2.every(el => arr1.includes(el)));
-};
 
 
-// let array_1 = ["a", "b", "c", "d", ""];
-// let array_2 = ["a", "b", "c", "", "d"];
 
-// console.log(deepEqual(array_1, array_2));
+}
 
 
 const final_result = map_constructor(schema);
 
 console.log(final_result);
 
-const filtered_results = [];
+// const filtered_results = [];
 
-final_result.forEach(path_1 => {
-    if (filtered_results.some(path_2 => deepEqual(path_1, path_2))) {
-        return;
-    };
-    filtered_results.push(path_1);
-});
+// final_result.forEach(path_1 => {
+//     if (filtered_results.some(path_2 => deepEqual(path_1, path_2))) {
+//         return;
+//     };
+//     filtered_results.push(path_1);
+// });
 
 
-// console.log(final_result);
+console.log(final_result);
 
 console.log('length before filter: ', final_result.length);
-console.log('length after filter: ' ,filtered_results.length);
+// console.log('length after filter: ' ,filtered_results.length);
 
-const sidebar = [{
-        type: "sidebar_stepper",
-        options: []
-    },
-    {
-        type: "info_box",
-        value: "You can log back in at any time to complete your application. This form saves automatically."
-    }
-];
+// const sidebar = [{
+//         type: "sidebar_stepper",
+//         options: []
+//     },
+//     {
+//         type: "info_box",
+//         value: "You can log back in at any time to complete your application. This form saves automatically."
+//     }
+// ];
 
 
-filtered_results.forEach(path => {
-   path.forEach((page, index)=> {
-    if (!sidebar[0].options.some(sidebar_item => sidebar_item.to === page[0])) {
-        let position = 0;
-        let next_page = path[index+1] || [''];
-        for (let sidebar_item in sidebar[0].options) {
-            if (sidebar_item.to === next_page[0]) break;
-            position++;
-        };
-        let temp = {
-            name: page[2],
-            to: page[0]
-        };
-        sidebar[0].options.insert(position, temp);
-    };
-   }); 
-});
+// filtered_results.forEach(path => {
+//    path.forEach((page, index)=> {
+//     if (!sidebar[0].options.some(sidebar_item => sidebar_item.to === page[0])) {
+//         let position = 0;
+//         let next_page = path[index+1] || [''];
+//         for (let sidebar_item in sidebar[0].options) {
+//             if (sidebar_item.to === next_page[0]) break;
+//             position++;
+//         };
+//         let temp = {
+//             name: page[2],
+//             to: page[0]
+//         };
+//         sidebar[0].options.insert(position, temp);
+//     };
+//    }); 
+// });
 
 
 // console.log(sidebar[0].options);
