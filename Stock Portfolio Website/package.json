@@ -1,0 +1,22 @@
+{
+    "name": "mels_website_project",
+    "version": "1.0.0",
+    "description": "mels_website_project",
+    "main": "app.js",
+    "scripts": {
+        "test": "none"
+    },
+    "license": "MIT",
+    "type": "module",
+    "private": true,
+    "repository": {
+        "type": "git",
+        "url": "personal-domain"
+    },
+    "keywords": [
+        "export",
+        "function",
+        "script"
+    ],
+    "author": "Mel"
+}
