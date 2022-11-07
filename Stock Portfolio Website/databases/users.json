@@ -19,7 +19,6 @@
         "password": "vanilla_cake",
         "permission_level": 1,
         "welcome_name": "Alan from the Underworld"
-        
     },
     {
         "id": 2,
@@ -27,5 +26,75 @@
         "password": "cherry_cake",
         "permission_level": 2,
         "welcome_name": "Crazy Boy Johnny"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
+    },
+    {
+        "id": 5,
+        "username": "tester",
+        "pass": "tester"
     }
 ]

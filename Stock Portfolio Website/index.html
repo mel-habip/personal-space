@@ -6,9 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mel's Divy Tracker Webpage</title>
-    <script src="./app.js" type="text/javascript"></script>
-    <script src="./jobs/validate_sign_in.js" type="text/javascript"></script>
-    <script src="./jobs/create_user.js" type="text/javascript"></script>
 
 
 </head>
@@ -35,9 +32,6 @@
                     let result = document.createElement('p1');
                     let real_sign_in_button = document.createElement('button');
                     real_sign_in_button.innerHTML = 'Sign In';
-                    real_sign_in_button.addEventListener('click', e => {
-                        result.innerHTML = validate_sign_in(username_input.value, password_input.value);
-                    });
 
                     new_form.appendChild(username_input);
                     new_form.appendChild(password_input);

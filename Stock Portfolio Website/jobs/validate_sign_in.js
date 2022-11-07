@@ -1,4 +1,4 @@
-async function validate_sign_in(username, password) {
+async function validate_sign_in(username, password) { //needs updating
 
     let res = {};
     fetch('./databases/users.json').then(response => response.json()).then(
