@@ -2,20 +2,25 @@ const PORT = 8000;
 
 const DOMAIN = `http://localhost:${PORT}`;
 
-const axios = require('axios');
-const express = require('express');
-const APP = express();
-const fs = require('fs');
 
-const cors = require('cors');
-const { log } = require('console'); 
+import { axios } from 'axios';
+import {
+    express
+} from 'express';
+import {
+    cors
+} from 'cors';
+import * as fs from fs;
+const log = console.log;
 
-let counter1 = 0;
-let counter2 = 0;
 
+
+const APP = express(); //creating and starting the server
 APP.use(cors());
-
 APP.listen(PORT, () => console.log(`Server Running on PORT ${PORT}`));
+
+
+
 
 APP.get('/', (req, res) => {
     counter1++
@@ -35,13 +40,11 @@ APP.post('/api/create_new_user/', (req, res) => {
     console.log('creation requested', counter2);
 
     let all_users = require('./databases/users.json');
-    log(req.body);
     log(req.query);
-    log(req.params);
     all_users.push({
-        id: 5,
-        username: 'tester',
-        pass: 'tester'
+        id: all_users.length,
+        username: req.query.username,
+        password: req.query.password
     });
     try {
         fs.writeFileSync('./databases/users.json', JSON.stringify(all_users, undefined, 4));
@@ -50,4 +53,4 @@ APP.post('/api/create_new_user/', (req, res) => {
     } finally {
         res.json(true);
     }
-})
+});

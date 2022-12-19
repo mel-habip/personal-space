@@ -21,7 +21,7 @@ let fetchData = {
     })
 }
 
-var fromServer = fetch(BE_DOMAIN + 'api/create_new_user/', fetchData)
+var fromServer = fetch(BE_DOMAIN + 'api/create_new_user/?username=Mel&password=123', fetchData)
     .then(function (response) {
         if (!response.ok) {
             throw Error(response.statusText);

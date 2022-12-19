@@ -1,8 +1,10 @@
 const file = process.argv.slice(2).join(' ');
-const schema = require(file).map(page => {return {id: page.id, type: page.type, title: page.title, next: page.next, branches: page.branches, submit: page.submit}});
+const schema = require(file).map(page => {
+    return {id: page.id || 'error', type: page.type || 'error', title: page.title || 'error', next: page.next || 'error', branches: page.branches || [], submit: page.submit || false}
+});
 
 const PAGE_POSITION_MAP = {};
-let pages_mapped_flag = false;
+var pages_mapped_flag = false;
 
 Object.prototype.length = function () {
     return Object.values(this).length;
@@ -50,8 +52,8 @@ function map_constructor(schema) {
 
     let index = 0;
     while (!submit) {
-        let page = page_finder(schema, last_next);
-        last_position = page.id;
+        console.log(last_next);
+        const page = page_finder(schema, last_next);
         if (page.submit === true) {
             submit = true;
             RESULT.forEach((el, ind) => {
@@ -66,11 +68,10 @@ function map_constructor(schema) {
                 RESULT[ind] = RESULT[ind].concat([
                     [page.id, {}, title_templater(page)]
                 ]);
-
             });
         } else if (page.type === 'jump') {
             let branches_from_here = jump_handler(schema, page);
-            // console.log(branches_from_here);
+            console.log(branches_from_here);
             let temp = [];
             let stringified_result = JSON.stringify(RESULT);
             for (let i = 1; i <= branches_from_here.length; i++) { //duplicating the paths
@@ -101,7 +102,7 @@ function individual_path_constructor(schema, page_id, condition = {}) {
             submit = true;
             RESULT.forEach((el, ind) => {
                 RESULT[ind] = RESULT[ind].concat([
-                    [page.id, condition_combiner(RESULT[0][index]?. [1] ?? {}, condition), title_templater(page)]
+                    [page.id, condition_combiner(RESULT[0][index]?.[1] ?? {}, condition), title_templater(page)]
                 ]);
             });
             break;
@@ -109,7 +110,7 @@ function individual_path_constructor(schema, page_id, condition = {}) {
             last_next = page.next;
             RESULT.forEach((el, ind) => {
                 RESULT[ind] = RESULT[ind].concat([
-                    [page.id, condition_combiner(RESULT[0][index]?. [1] ?? {}, condition), title_templater(page)]
+                    [page.id, condition_combiner(RESULT[0][index]?.[1] ?? {}, condition), title_templater(page)]
                 ]);
 
             });
@@ -231,8 +232,7 @@ function deepEqual(x, y) {
 function page_finder(schema, page_to_find) {
 
     if (pages_mapped_flag) {
-
-        let our_page = schema?.[PAGE_POSITION_MAP?.[page_to_find]];
+        let our_page = schema[PAGE_POSITION_MAP[page_to_find]];
         if (!our_page) throw Error(`Page with id ${page_to_find} could not be found!`);
 
         let {id, type} = our_page;
@@ -253,6 +253,7 @@ function page_finder(schema, page_to_find) {
         return {
             id,
             type,
+            submit,
             next,
             title,
             subtitle
@@ -263,10 +264,8 @@ function page_finder(schema, page_to_find) {
             PAGE_POSITION_MAP[page.id] = index;
         });
         pages_mapped_flag=true;
+        return page_finder(schema, page_to_find);
     }
-
-
-
 }
 
 
@@ -274,20 +273,20 @@ const final_result = map_constructor(schema);
 
 console.log(final_result);
 
-// const filtered_results = [];
+const filtered_results = [];
 
-// final_result.forEach(path_1 => {
-//     if (filtered_results.some(path_2 => deepEqual(path_1, path_2))) {
-//         return;
-//     };
-//     filtered_results.push(path_1);
-// });
+final_result.forEach(path_1 => {
+    if (filtered_results.some(path_2 => deepEqual(path_1, path_2))) {
+        return;
+    };
+    filtered_results.push(path_1);
+});
 
 
 console.log(final_result);
 
 console.log('length before filter: ', final_result.length);
-// console.log('length after filter: ' ,filtered_results.length);
+console.log('length after filter: ' ,filtered_results.length);
 
 // const sidebar = [{
 //         type: "sidebar_stepper",
