@@ -1,9 +1,10 @@
 const PORT = 8000;
-
 const DOMAIN = `http://localhost:${PORT}`;
 
-
-import { axios } from 'axios';
+import {
+    axios
+} from 'axios';
+import mysql from 'mysql';
 import {
     express
 } from 'express';
@@ -13,44 +14,81 @@ import {
 import * as fs from fs;
 const log = console.log;
 
+const con = mysql.createConnection({
+    host: "localhost",
+    user: "yourusername",
+    password: "yourpassword",
+    database: 'mydb'
+});
 
+con.connect(function (err) {
+    if (err) throw err;
+    console.log("Connected!");
+});
 
 const APP = express(); //creating and starting the server
 APP.use(cors());
 APP.listen(PORT, () => console.log(`Server Running on PORT ${PORT}`));
 
 
-
-
 APP.get('/', (req, res) => {
-    counter1++
-    console.log('requested', counter1);
     res.json('Hello World!');
 });
 
-APP.get('/api/validate_user', (req, res) => {
-    let all_users = require('./databases/users');
-
-    let current_user = all_users.find(user => user.username === req.query?.username);
-    res.json(current_user);
+APP.get('/api/show_all_users', (req, res) => {
+    let sql = `SELECT * FROM Users`;
+    let results = con.query(sql, function (err, result) {
+        if (err) throw err;
+        log("here you go", result);
+    });
+    res.json(results);
 });
 
 APP.post('/api/create_new_user/', (req, res) => {
-    counter2++
-    console.log('creation requested', counter2);
+    let sql = `SELECT * FROM Users WHERE Username = '${req.data.username}'`;
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+        log('result', result);
+        if (result?. [0]) {
+            log(`Username ${req.data.username} already in use`);
+            res.json(`Username ${req.data.username} already in use`);
+            return false; //does this do anything or does res.json mark the end?
+        };
 
-    let all_users = require('./databases/users.json');
-    log(req.query);
-    all_users.push({
-        id: all_users.length,
-        username: req.query.username,
-        password: req.query.password
     });
-    try {
-        fs.writeFileSync('./databases/users.json', JSON.stringify(all_users, undefined, 4));
-    } catch (err) {
-        res.json(false);
-    } finally {
-        res.json(true);
-    }
+    sql = `INSERT INTO Users (Username, Password, FirstName, LastName, Permissions) VALUES ('${req.data.username}', '${req.data.password}','${req.data.FirstName}','${req.data.LastName}','${req.data.permissions}')`;
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+        log("1 record inserted", result);
+        //Do we want to then create a table specifically for that user?
+    });
+    log(req.query);
+    res.json('Created 1 record');
 });
+
+APP.get('/validate_login', (req, res) => {
+    let sql = `SELECT Username, Password FROM Users WHERE Username = '${req.data.username}'`;
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+        log('result', result);
+        if (!result?. [0]) {
+            log("Username not recognized");
+            res.json('Username not recognized');
+            return false; //does this do anything or does res.json mark the end?
+        };
+        sql = `SELECT Username, Password FROM Users WHERE Username = '${req.data.username}' AND Password = '${req.data.password}'`;
+        con.query(sql, function (err, result) {
+            if (err) throw err;
+            log('result', result);
+            if (!!result?. [0]) {
+                res.json('Incorrect Password');
+            };
+            res.json(`Welcome home ${result[0].FirstName} ${result[0].LastName}! `);
+        });
+
+    });
+});
+
+APP.get('/api/get_all_positions', (req, res) => {
+    let sql = `SELECT `
+})
