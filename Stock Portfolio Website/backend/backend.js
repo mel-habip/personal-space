@@ -5,13 +5,17 @@ import {
     axios
 } from 'axios';
 import mysql from 'mysql';
+import * as jwt from 'jsonwebtoken';
 import {
     express
 } from 'express';
 import {
     cors
 } from 'cors';
+import dotenv from 'dotenv';
 import * as fs from fs;
+
+dotenv.config();
 const log = console.log;
 
 const con = mysql.createConnection({
@@ -28,8 +32,21 @@ con.connect(function (err) {
 
 const APP = express(); //creating and starting the server
 APP.use(cors());
-APP.listen(PORT, () => console.log(`Server Running on PORT ${PORT}`));
 
+const posts = [
+    {
+        user: 'Kyle',
+        title: 'Post 1'
+    },
+    {
+        user: 'Jim',
+        title: 'Post 2'
+    }
+];
+
+APP.get('/posts', (req, res) => {
+    res.json(posts);
+})
 
 APP.get('/', (req, res) => {
     res.json('Hello World!');
@@ -66,6 +83,21 @@ APP.post('/api/create_new_user/', (req, res) => {
     res.json('Created 1 record');
 });
 
+APP.post('/login', (req, res) => {
+    // TODO: Authenticate user
+
+    const username = req.user.username;
+
+    const user = {name: username};
+
+    const access_token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET_KEY);
+
+    res.json({
+        access_token
+    });
+});
+
+
 APP.get('/validate_login', (req, res) => {
     let sql = `SELECT Username, Password FROM Users WHERE Username = '${req.data.username}'`;
     con.query(sql, function (err, result) {
@@ -90,5 +122,7 @@ APP.get('/validate_login', (req, res) => {
 });
 
 APP.get('/api/get_all_positions', (req, res) => {
-    let sql = `SELECT `
-})
+    let sql = `SELECT ` //TODO: finsih this
+});
+
+APP.listen(PORT, () => console.log(`Server Running on PORT ${PORT}`));
