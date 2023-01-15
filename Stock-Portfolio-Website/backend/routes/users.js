@@ -14,7 +14,7 @@ Router.get('/', authenticateToken, (req, res) => {
             return res.json(results);
         } else {
             return res.json(results.filter(user => user.id === req.user.id));
-        }
+        } // or the people to whom you have access
     });
 });
 
@@ -128,7 +128,7 @@ Router.get('/:user_id', authenticateToken, async (req, res) => {
 });
 
 Router.put('/:user_id', authenticateToken, async (req, res) => {
-    const allowed_changes =['first_name', 'last_name', 'username', 'active', 'updated_on', 'permissions'];
-    delete res.body.created_at
+    const allowed_changes =['first_name', 'last_name', 'username', 'updated_on', 'permissions'];
+    delete res.body.created_at; //uneditable
     //TODO: update user details except CreatedOn, 
-})
+});
